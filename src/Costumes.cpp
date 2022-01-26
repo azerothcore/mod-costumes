@@ -18,14 +18,14 @@
 #include "Costumes.h"
 #include "Config.h"
 
-struct Morph
+struct Costume
 {
     uint32 itemEntry;
     uint32 displayId;
     float scale;
     int32 duration;
 
-    Morph(uint32 itemEntry, uint32 displayId, float scale = 1.0f, int32 duration = -1)
+    Costume(uint32 itemEntry, uint32 displayId, float scale = 1.0f, int32 duration = -1)
         : itemEntry(itemEntry),
         displayId(displayId),
         scale(scale),
@@ -89,17 +89,17 @@ bool Costumes::CanUseItem(Player* player, ItemTemplate const* item, InventoryRes
         return false;
     }
 
-    Morph* morph = morphs[item->ItemId];
-    if (!morph)
+    Costume* costume = costumes[item->ItemId];
+    if (!costume)
     {
         return true;
     }
-    player->SetDisplayId(morph->displayId);
-    player->SetObjectScale(morph->scale);
+    player->SetDisplayId(costume->displayId);
+    player->SetObjectScale(costume->scale);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
 
     // Add morph timer
-    int32 duration = morph->duration < 0 ? static_cast<int32>(defaultDuration) : morph->duration;
+    int32 duration = costume->duration < 0 ? static_cast<int32>(defaultDuration) : costume->duration;
     playerMorphs[player->GetGUID()] = new PlayerMorph(duration * IN_MILLISECONDS);
 
     return true;
@@ -150,7 +150,7 @@ void Costumes::OnStartup()
 
 void Costumes::OnShutdown()
 {
-    UnloadMorphs();
+    UnloadCostumes();
 }
 
 void Costumes::OnAfterConfigLoad(bool reload)
@@ -177,17 +177,17 @@ void Costumes::LoadConfig()
     defaultDuration = sConfigMgr->GetOption<uint32>("Costumes.Duration", 60);
     canUseInCombat = sConfigMgr->GetOption("Costumes.CanUseInCombat", false);
 
-    LoadMorphs();
+    LoadCostumes();
 }
 
-void Costumes::LoadMorphs()
+void Costumes::LoadCostumes()
 {
     if (!enabled)
     {
         return;
     }
 
-    UnloadMorphs();
+    UnloadCostumes();
 
     QueryResult result = WorldDatabase.PQuery("SELECT item_entry, display_id, scale, duration FROM costume");
     if (!result)
@@ -203,20 +203,20 @@ void Costumes::LoadMorphs()
         float scale = fields[2].GetFloat();
         int32 duration = fields[3].GetInt32();
 
-        Morph* morph = new Morph(itemEntry, displayId, scale, duration);
-        morphs.insert(std::make_pair(itemEntry, morph));
+        Costume* costume = new Costume(itemEntry, displayId, scale, duration);
+        costumes.insert(std::make_pair(itemEntry, costume));
     } while (result->NextRow());
 
     return;
 }
 
-void Costumes::UnloadMorphs()
+void Costumes::UnloadCostumes()
 {
-    for (const auto& pair : morphs)
+    for (const auto& pair : costumes)
     {
         delete pair.second;
     }
-    morphs.clear();
+    costumes.clear();
 }
 
 void AddCostumesScripts()

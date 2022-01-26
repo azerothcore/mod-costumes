@@ -23,7 +23,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 
-struct Morph;
+struct Costume;
 struct PlayerMorph;
 
 class Costumes : public PlayerScript, WorldScript
@@ -44,8 +44,8 @@ public:
 private:
     void DemorphPlayer(Player* player);
     void LoadConfig();
-    void LoadMorphs();
-    void UnloadMorphs();
+    void LoadCostumes();
+    void UnloadCostumes();
 
     bool enabled;
     uint32 costumeSpellId;
@@ -53,7 +53,7 @@ private:
     bool canUseInCombat;
     const uint32 visualSpell = 24222; // Vanish Visual
     std::map<ObjectGuid, PlayerMorph*> playerMorphs; // Map of all players currently morphed (key = player GUID)
-    std::map<uint32, Morph*> morphs; // Map of all morphs from the `costume` table (key = item entry)
+    std::map<uint32, Costume*> costumes; // Map of all rows from the `costume` table (key = item entry)
 };
 
 #endif

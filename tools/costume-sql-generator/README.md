@@ -1,6 +1,6 @@
 # SQL Generator
 
-This tool generates a SQL file that inserts a custom item in the ``item_template`` and ``costume`` tables from a single source of data.
+This tool generates a SQL file to insert rows into the ``item_template`` and ``costume`` tables from a single source of data.
 
 ## Requirements
 
@@ -8,9 +8,21 @@ This tool generates a SQL file that inserts a custom item in the ``item_template
 
 ## Usage
 
-Edit the `costumes.csv` file, add a row per costume.
+1. If you're using the tool for the first time, copy `costumes.template.csv` to `costumes.csv`.
+2. Edit the `costumes.csv` file, add a row per costume. See the [CSV Columns](#csv-columns) section for more detail about each column.
+3. Open a terminal or command prompt window, and navigate to `tools/costume-sql-generator`.
+4. Before first use or after updating your local clone:
+```sh
+npm install
+```
+5. Convert the CSV file to a SQL file:
+```sh
+npm start
+```
+6. Run the SQL queries from `costumes.sql` against your world database using your favourite database client.
 
-The file's columns are described below:
+## CSV Columns
+
 * **itemId**: The entry of the item used for this costume.
 * **name**: The item's name.
 * **description**: The description in the item's in-game tooltip.
@@ -24,14 +36,3 @@ The file's columns are described below:
 * **material**: The item's material, changes the sound made when the item is moved around in the inventory. See the [AzerothCore Wiki](https://www.azerothcore.org/wiki/item_template#material) for possible values.
 * **spell**: The spell triggered when right-clicking the item. This must match the `SpellId` value in the module config file.
 * **cooldown**: The costume's cooldown in seconds.
-
-Open a terminal or command prompt window, and navigate to `tools/costume-sql-generator`.
-Before first use or after updating your local clone:
-```sh
-npm install
-```
-Convert the CSV file to a SQL file:
-```sh
-npm start
-```
-Then run the SQL queries against your world database using your favourite database client.

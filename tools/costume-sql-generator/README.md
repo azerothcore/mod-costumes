@@ -21,6 +21,8 @@ npm start
 ```
 6. Run the SQL queries from `costumes.sql` against your world database using your favourite database client.
 
+⚠️ Any manual edit to the `costumes.sql` file will be lost when running the tool again! Only change the data in the CSV file.
+
 ## CSV Columns
 
 * **itemId**: The entry of the item used for this costume.

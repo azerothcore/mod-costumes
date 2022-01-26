@@ -1,0 +1,28 @@
+[worldserver]
+
+###################################################################################################
+#    Costumes config
+###################################################################################################
+#
+#    Costumes.Enabled
+#        Description: Enables/Disables costumes.
+#                     Nothing will happen if a player uses a costume item while the value is 0.
+#        Default:     1
+#
+#    Costumes.SpellId
+#        Description: The entry of the spell used by all costume items.
+#        Default:     18282
+#
+#    Costumes.Duration
+#        Description: The default duration in seconds of all costumes.
+#                     Can be changed individually in the `costume` table with the `duration` column.
+#        Default:     60
+#
+#    Costumes.CanUseInCombat
+#        Description: Allows players to use costumes while in combat.
+#        Default:     0
+
+Costumes.Enabled = 1
+Costumes.SpellId = 18282
+Costumes.Duration = 60
+Costumes.CanUseInCombat = 0

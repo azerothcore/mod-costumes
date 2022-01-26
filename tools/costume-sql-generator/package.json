@@ -1,0 +1,10 @@
+{
+	"name": "costume-sql-generator",
+	"scripts": {
+		"start": "node main.js"
+	},
+	"license": "AGPL",
+	"dependencies": {
+		"csv-parse": "^5.0.4"
+	}
+}

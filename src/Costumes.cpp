@@ -189,7 +189,7 @@ void Costumes::LoadCostumes()
 
     UnloadCostumes();
 
-    QueryResult result = WorldDatabase.PQuery("SELECT item_entry, display_id, scale, duration FROM costume");
+    QueryResult result = WorldDatabase.Query("SELECT item_entry, display_id, scale, duration FROM costume");
     if (!result)
     {
         return;
@@ -198,10 +198,10 @@ void Costumes::LoadCostumes()
     do
     {
         Field* fields = result->Fetch();
-        uint32 itemEntry = fields[0].GetUInt32();
-        uint32 displayId = fields[1].GetUInt32();
-        float scale = fields[2].GetFloat();
-        int32 duration = fields[3].GetInt32();
+        uint32 itemEntry = fields[0].Get<uint32>();
+        uint32 displayId = fields[1].Get<uint32>();
+        float scale = fields[2].Get<float>();
+        int32 duration = fields[3].Get<int32>();
 
         Costume* costume = new Costume(itemEntry, displayId, scale, duration);
         costumes.insert(std::make_pair(itemEntry, costume));

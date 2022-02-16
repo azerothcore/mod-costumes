@@ -22,12 +22,14 @@ struct Costume
 {
     uint32 itemEntry;
     uint32 displayId;
+    uint32 soundId;
     float scale;
     int32 duration;
 
-    Costume(uint32 itemEntry, uint32 displayId, float scale = 1.0f, int32 duration = -1)
+    Costume(uint32 itemEntry, uint32 displayId, uint32 soundId, float scale = 1.0f, int32 duration = -1)
         : itemEntry(itemEntry),
         displayId(displayId),
+        soundId(soundId),
         scale(scale),
         duration(duration)
     { }
@@ -97,6 +99,10 @@ bool Costumes::CanUseItem(Player* player, ItemTemplate const* item, InventoryRes
     player->SetDisplayId(costume->displayId);
     player->SetObjectScale(costume->scale);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
+    if (costume->soundId != 0)
+    {
+        player->PlayDistanceSound(costume->soundId);
+    }
 
     // Add morph timer
     int32 duration = costume->duration < 0 ? static_cast<int32>(defaultDuration) : costume->duration;
@@ -189,7 +195,7 @@ void Costumes::LoadCostumes()
 
     UnloadCostumes();
 
-    QueryResult result = WorldDatabase.Query("SELECT item_entry, display_id, scale, duration FROM costume");
+    QueryResult result = WorldDatabase.Query("SELECT item_entry, display_id, sound_id, scale, duration FROM costume");
     if (!result)
     {
         return;
@@ -197,13 +203,15 @@ void Costumes::LoadCostumes()
 
     do
     {
+        int col = 0;
         Field* fields = result->Fetch();
-        uint32 itemEntry = fields[0].Get<uint32>();
-        uint32 displayId = fields[1].Get<uint32>();
-        float scale = fields[2].Get<float>();
-        int32 duration = fields[3].Get<int32>();
+        uint32 itemEntry = fields[col++].Get<uint32>();
+        uint32 displayId = fields[col++].Get<uint32>();
+        uint32 soundId = fields[col++].Get<uint32>();
+        float scale = fields[col++].Get<float>();
+        int32 duration = fields[col++].Get<int32>();
 
-        Costume* costume = new Costume(itemEntry, displayId, scale, duration);
+        Costume* costume = new Costume(itemEntry, displayId, soundId, scale, duration);
         costumes.insert(std::make_pair(itemEntry, costume));
     } while (result->NextRow());
 

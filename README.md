@@ -35,6 +35,7 @@ Alternatively, you can just start your worldserver if the updates system is enab
 2. Insert a row in the `costume` table of the world database.
     * **`item_entry`**: Must match the entry of the item added in step 1.
     * **`display_id`**: The model the player will have in-game when using this costume. This is the same value you would use with the `.morph` command. For instance, you can use the search bar on [wow.tools](https://wow.tools/dbc/?dbc=creaturedisplayinfo&build=3.3.5.12340#page=1) and use the value of the first column (`ID`).
+    * **`sound_id`**: The ID of the sound played when using the costume. Set to `0` if you don't want a sound. You can find a list of sounds [here for example](https://wotlkdb.com/?sounds) (the ID will be displayed in the address bar when clicking on a sound).
     * **`scale`**: The scale applied to the player when using the costume, `1.0` is the regular scale, anything between `0` and `1` will shrink the player, anything greater than `1` will grow the player.
     * **`duration`**: The costume's duration in seconds. This overrides the default duration set in `costumes.conf`. If you want to use the module config's default duration for this costume, set the column to `-1`.
 3. Start or restart your worldserver.

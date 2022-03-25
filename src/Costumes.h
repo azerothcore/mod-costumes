@@ -32,8 +32,8 @@ public:
     Costumes();
 
     // PlayerScript
-    bool CanUseItem(Player* player, ItemTemplate const* item, InventoryResult& result) override;
-    void OnPlayerEnterCombat(Player* player, Unit* enemy) override;
+    bool CanUseItem(Player *player, ItemTemplate const *item, InventoryResult &result) override;
+    void OnPlayerEnterCombat(Player *player, Unit *enemy) override;
 
     // WorldScript
     void OnUpdate(uint32 diff) override;
@@ -42,7 +42,7 @@ public:
     void OnAfterConfigLoad(bool reload) override;
 
 private:
-    void DemorphPlayer(Player* player);
+    void DemorphPlayer(Player *player);
     void LoadConfig();
     void LoadCostumes();
     void UnloadCostumes();
@@ -51,9 +51,9 @@ private:
     uint32 costumeSpellId;
     uint32 defaultDuration;
     bool canUseInCombat;
-    const uint32 visualSpell = 24222; // Vanish Visual
-    std::map<ObjectGuid, PlayerMorph*> playerMorphs; // Map of all players currently morphed (key = player GUID)
-    std::map<uint32, Costume*> costumes; // Map of all rows from the `costume` table (key = item entry)
+    const uint32 visualSpell = 24222;                 // Vanish Visual
+    std::map<ObjectGuid, PlayerMorph *> playerMorphs; // Map of all players currently morphed (key = player GUID)
+    std::map<uint32, Costume *> costumes;             // Map of all rows from the `costume` table (key = item entry)
 };
 
 #endif

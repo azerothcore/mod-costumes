@@ -28,11 +28,12 @@ struct Costume
 
     Costume(uint32 itemEntry, uint32 displayId, uint32 soundId, float scale = 1.0f, int32 duration = -1)
         : itemEntry(itemEntry),
-        displayId(displayId),
-        soundId(soundId),
-        scale(scale),
-        duration(duration)
-    { }
+          displayId(displayId),
+          soundId(soundId),
+          scale(scale),
+          duration(duration)
+    {
+    }
 };
 
 struct PlayerMorph
@@ -41,24 +42,27 @@ struct PlayerMorph
 
     PlayerMorph(int32 durationLeft)
         : durationLeft(durationLeft)
-    { }
+    {
+    }
 };
 
 Costumes::Costumes()
     : PlayerScript("CostumesPlayerScript"),
-    WorldScript("CostumesWorldScript"),
-    enabled(false),
-    costumeSpellId(0),
-    defaultDuration(0),
-    canUseInCombat(false)
-{ }
-
-bool Costumes::CanUseItem(Player* player, ItemTemplate const* item, InventoryResult& result)
+      WorldScript("CostumesWorldScript"),
+      enabled(false),
+      costumeSpellId(0),
+      defaultDuration(0),
+      canUseInCombat(false)
 {
-    if (!enabled || !player || !item || item->Spells[0].SpellId != costumeSpellId)
+}
+
+bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryResult &result)
+{
+    if (!enabled || !player || !item || (uint32)item->Spells[0].SpellId != (uint32)costumeSpellId)
     {
         return true;
     }
+
     if (!canUseInCombat && player->IsInCombat())
     {
         result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
@@ -91,11 +95,18 @@ bool Costumes::CanUseItem(Player* player, ItemTemplate const* item, InventoryRes
         return false;
     }
 
-    Costume* costume = costumes[item->ItemId];
+    Costume *costume = costumes[item->ItemId];
     if (!costume)
     {
         return true;
     }
+
+    if (player->GetDisplayId() == costume->displayId) // if the morph is active -> demoprh
+    {
+        player->DeMorph();
+        return true;
+    }
+
     player->SetDisplayId(costume->displayId);
     player->SetObjectScale(costume->scale);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
@@ -111,7 +122,7 @@ bool Costumes::CanUseItem(Player* player, ItemTemplate const* item, InventoryRes
     return true;
 }
 
-void Costumes::OnPlayerEnterCombat(Player* player, Unit* enemy)
+void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
 {
     if (!enabled || !player || canUseInCombat || playerMorphs.count(player->GetGUID()) == 0)
     {
@@ -128,16 +139,16 @@ void Costumes::OnUpdate(uint32 diff)
         return;
     }
 
-    std::map<ObjectGuid, PlayerMorph*>::iterator it = playerMorphs.begin();
+    std::map<ObjectGuid, PlayerMorph *>::iterator it = playerMorphs.begin();
     while (it != playerMorphs.end())
     {
         ObjectGuid playerGuid = it->first;
-        PlayerMorph* morph = it->second;
+        PlayerMorph *morph = it->second;
 
         morph->durationLeft -= static_cast<int32>(diff);
         if (morph->durationLeft <= 0)
         {
-            Player* player = ObjectAccessor::FindPlayer(playerGuid);
+            Player *player = ObjectAccessor::FindPlayer(playerGuid);
             DemorphPlayer(player);
             it = playerMorphs.erase(it);
             delete morph;
@@ -159,12 +170,12 @@ void Costumes::OnShutdown()
     UnloadCostumes();
 }
 
-void Costumes::OnAfterConfigLoad(bool reload)
+void Costumes::OnAfterConfigLoad(bool /* reload */)
 {
     LoadConfig();
 }
 
-void Costumes::DemorphPlayer(Player* player)
+void Costumes::DemorphPlayer(Player *player)
 {
     if (!player)
     {
@@ -204,14 +215,14 @@ void Costumes::LoadCostumes()
     do
     {
         int col = 0;
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         uint32 itemEntry = fields[col++].Get<uint32>();
         uint32 displayId = fields[col++].Get<uint32>();
         uint32 soundId = fields[col++].Get<uint32>();
         float scale = fields[col++].Get<float>();
         int32 duration = fields[col++].Get<int32>();
 
-        Costume* costume = new Costume(itemEntry, displayId, soundId, scale, duration);
+        Costume *costume = new Costume(itemEntry, displayId, soundId, scale, duration);
         costumes.insert(std::make_pair(itemEntry, costume));
     } while (result->NextRow());
 
@@ -220,7 +231,7 @@ void Costumes::LoadCostumes()
 
 void Costumes::UnloadCostumes()
 {
-    for (const auto& pair : costumes)
+    for (const auto &pair : costumes)
     {
         delete pair.second;
     }

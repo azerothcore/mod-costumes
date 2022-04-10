@@ -38,10 +38,16 @@ struct Costume
 
 struct PlayerMorph
 {
+    Costume* costume;
+    int32 startDelay;
     int32 durationLeft;
+    bool morphed;
 
-    PlayerMorph(int32 durationLeft)
-        : durationLeft(durationLeft)
+    PlayerMorph(Costume* costume, int32 startDelay, int32 durationLeft, bool morphed)
+        : costume(costume),
+          startDelay(startDelay),
+          durationLeft(durationLeft),
+          morphed(morphed)
     {
     }
 };
@@ -103,10 +109,38 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
 
     if (player->GetDisplayId() == costume->displayId) // if the morph is active -> demoprh
     {
-        player->DeMorph();
+        DemorphPlayer(player);
         return true;
     }
 
+    float currentScale = player->GetObjectScale();
+    ObjectGuid guid = player->GetGUID();
+    if (playerMorphs.find(guid) != playerMorphs.end())
+    {
+        // Already has a morph, remove it before applying the new one
+        DemorphPlayer(player);
+    }
+
+    bool delay = std::abs(currentScale - costume->scale) > 0.00001;
+    if (!delay)
+    {
+        ApplyCostume(player, costume);
+    }
+    else
+    {
+        player->SetObjectScale(costume->scale);
+    }
+
+    // Add morph timer
+    int32 startDelay = delay ? 2 : -1;
+    int32 duration = (costume->duration < 0 ? static_cast<int32>(defaultDuration) : costume->duration) + startDelay;
+    playerMorphs[guid] = new PlayerMorph(costume, startDelay * IN_MILLISECONDS, duration * IN_MILLISECONDS, !delay);
+
+    return true;
+}
+
+void Costumes::ApplyCostume(Player* player, Costume* costume)
+{
     player->SetDisplayId(costume->displayId);
     player->SetObjectScale(costume->scale);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
@@ -114,12 +148,6 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
     {
         player->PlayDistanceSound(costume->soundId);
     }
-
-    // Add morph timer
-    int32 duration = costume->duration < 0 ? static_cast<int32>(defaultDuration) : costume->duration;
-    playerMorphs[player->GetGUID()] = new PlayerMorph(duration * IN_MILLISECONDS);
-
-    return true;
 }
 
 void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
@@ -139,23 +167,28 @@ void Costumes::OnUpdate(uint32 diff)
         return;
     }
 
-    std::map<ObjectGuid, PlayerMorph *>::iterator it = playerMorphs.begin();
-    while (it != playerMorphs.end())
+    int32 dt = static_cast<int32>(diff);
+    for (auto it = playerMorphs.begin(); it != playerMorphs.end(); ++it)
     {
         ObjectGuid playerGuid = it->first;
         PlayerMorph *morph = it->second;
 
-        morph->durationLeft -= static_cast<int32>(diff);
+        if (!morph->morphed)
+        {
+            morph->startDelay -= dt;
+            if (morph->startDelay <= 0)
+            {
+                Player* player = ObjectAccessor::FindPlayer(playerGuid);
+                ApplyCostume(player, morph->costume);
+                morph->morphed = true;
+            }
+        }
+
+        morph->durationLeft -= dt;
         if (morph->durationLeft <= 0)
         {
             Player *player = ObjectAccessor::FindPlayer(playerGuid);
             DemorphPlayer(player);
-            it = playerMorphs.erase(it);
-            delete morph;
-        }
-        else
-        {
-            ++it;
         }
     }
 }
@@ -185,6 +218,11 @@ void Costumes::DemorphPlayer(Player *player)
     player->DeMorph();
     player->SetObjectScale(1.0f);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
+
+    ObjectGuid guid = player->GetGUID();
+    PlayerMorph* morph = playerMorphs[guid];
+    playerMorphs.erase(guid);
+    delete morph;
 }
 
 void Costumes::LoadConfig()

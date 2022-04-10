@@ -42,6 +42,7 @@ public:
     void OnAfterConfigLoad(bool reload) override;
 
 private:
+    void ApplyCostume(Player* player, Costume* costume);
     void DemorphPlayer(Player *player);
     void LoadConfig();
     void LoadCostumes();

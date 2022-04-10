@@ -24,6 +24,7 @@
 #include "Player.h"
 
 struct Costume;
+struct PlayerState;
 struct PlayerMorph;
 
 class Costumes : public PlayerScript, WorldScript
@@ -42,18 +43,22 @@ public:
     void OnAfterConfigLoad(bool reload) override;
 
 private:
-    void ApplyCostume(Player* player, Costume* costume);
+    void ApplyCostume(Player *player, Costume *costume);
     void DemorphPlayer(Player *player);
+    bool IsPlayerMorphed(Player *player);
+    bool IsCostumeOnCooldown(Player *player, Costume *costume);
+    PlayerState *GetPlayerState(Player *player);
     void LoadConfig();
     void LoadCostumes();
     void UnloadCostumes();
 
     bool enabled;
     uint32 costumeSpellId;
-    uint32 defaultDuration;
+    int32 defaultDuration;
+    int64 defaultCooldown;
     bool canUseInCombat;
-    const uint32 visualSpell = 24222;                 // Vanish Visual
-    std::map<ObjectGuid, PlayerMorph *> playerMorphs; // Map of all players currently morphed (key = player GUID)
+    const uint32 visualSpell = 24222;                 // Vanish visual effect
+    std::map<ObjectGuid, PlayerState *> playerStates; // Map of players' states (current morph and cooldowns) (key = player GUID)
     std::map<uint32, Costume *> costumes;             // Map of all rows from the `costume` table (key = item entry)
 };
 

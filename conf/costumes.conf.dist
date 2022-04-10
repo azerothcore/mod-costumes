@@ -18,6 +18,11 @@
 #                     Can be changed individually in the `costume` table with the `duration` column.
 #        Default:     60
 #
+#    Costumes.Cooldown
+#        Description: The default cooldown in seconds of all costumes.
+#                     Can be changed individually in the `costume` table with the `cooldown` column.
+#        Default:     240
+#
 #    Costumes.CanUseInCombat
 #        Description: Allows players to use costumes while in combat.
 #        Default:     0
@@ -25,4 +30,5 @@
 Costumes.Enabled = 1
 Costumes.SpellId = 18282
 Costumes.Duration = 60
+Costumes.Cooldown = 240
 Costumes.CanUseInCombat = 0

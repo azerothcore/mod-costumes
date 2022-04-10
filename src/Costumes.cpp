@@ -17,6 +17,7 @@
 
 #include "Costumes.h"
 #include "Config.h"
+#include "Time/GameTime.h"
 
 struct Costume
 {
@@ -25,14 +26,60 @@ struct Costume
     uint32 soundId;
     float scale;
     int32 duration;
+    int64 cooldown;
 
-    Costume(uint32 itemEntry, uint32 displayId, uint32 soundId, float scale = 1.0f, int32 duration = -1)
+    Costume(uint32 itemEntry, uint32 displayId, uint32 soundId, float scale, int32 duration, int64 cooldown)
         : itemEntry(itemEntry),
           displayId(displayId),
           soundId(soundId),
           scale(scale),
-          duration(duration)
+          duration(duration),
+          cooldown(cooldown)
     {
+    }
+};
+
+struct PlayerState
+{
+    PlayerMorph* morph;
+    std::map<uint32, int64> cooldowns;
+
+    PlayerState()
+        : morph(nullptr),
+          cooldowns()
+    {
+    }
+
+    bool DeleteMorph()
+    {
+        if (morph)
+        {
+            delete morph;
+            morph = nullptr;
+            return true;
+        }
+        return false;
+    }
+
+    bool IsEmpty()
+    {
+        return morph == nullptr && cooldowns.empty();
+    }
+
+    bool UpdateCooldowns(int64 now)
+    {
+        bool cdRemoved = false;
+
+        for (auto it = cooldowns.begin(); it != cooldowns.end(); ++it)
+        {
+            if (it->second <= now)
+            {
+                cooldowns.erase(it);
+                cdRemoved = true;
+            }
+        }
+
+        return cdRemoved;
     }
 };
 
@@ -58,6 +105,7 @@ Costumes::Costumes()
       enabled(false),
       costumeSpellId(0),
       defaultDuration(0),
+      defaultCooldown(0),
       canUseInCombat(false)
 {
 }
@@ -75,25 +123,39 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         return false;
     }
 
-    uint32 cd = player->GetSpellCooldownDelay(costumeSpellId);
-    if (cd)
+    Costume* costume = costumes[item->ItemId];
+    if (!costume)
     {
+        return true;
+    }
+
+    if (player->GetDisplayId() == costume->displayId)
+    {
+        // This specific costume is already active, demorph the player
+        DemorphPlayer(player);
+        return true;
+    }
+
+    ObjectGuid guid = player->GetGUID();
+    if (IsCostumeOnCooldown(player, costume))
+    {
+        int64 cd = playerStates[guid]->cooldowns[costume->itemEntry] - GameTime::GetGameTimeMS().count();
         cd /= 1000;
-        uint32 hours = cd / 3600;
-        uint32 minutes = (cd % 3600) / 60;
-        uint32 seconds = cd % 60;
+        int64 hours = cd / 3600;
+        int64 minutes = (cd % 3600) / 60;
+        int64 seconds = cd % 60;
         char formattedTime[9]{};
         if (hours)
         {
-            sprintf(formattedTime, "%02u:%02u:%02u", hours, minutes, seconds);
+            sprintf(formattedTime, "%02lld:%02lld:%02lld", hours, minutes, seconds);
         }
         else if (minutes)
         {
-            sprintf(formattedTime, "%02u:%02u", minutes, seconds);
+            sprintf(formattedTime, "%02lld:%02lld", minutes, seconds);
         }
         else
         {
-            sprintf(formattedTime, "%02us", seconds);
+            sprintf(formattedTime, "%02llds", seconds);
         }
         player->GetSession()->SendNotification("Cooldown: %s", formattedTime);
 
@@ -101,23 +163,10 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         return false;
     }
 
-    Costume *costume = costumes[item->ItemId];
-    if (!costume)
-    {
-        return true;
-    }
-
-    if (player->GetDisplayId() == costume->displayId) // if the morph is active -> demoprh
-    {
-        DemorphPlayer(player);
-        return true;
-    }
-
     float currentScale = player->GetObjectScale();
-    ObjectGuid guid = player->GetGUID();
-    if (playerMorphs.find(guid) != playerMorphs.end())
+    if (IsPlayerMorphed(player))
     {
-        // Already has a morph, remove it before applying the new one
+        // Already has a costume active, remove it before applying the new one
         DemorphPlayer(player);
     }
 
@@ -131,10 +180,13 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         player->SetObjectScale(costume->scale);
     }
 
-    // Add morph timer
-    int32 startDelay = delay ? 2 : -1;
-    int32 duration = (costume->duration < 0 ? static_cast<int32>(defaultDuration) : costume->duration) + startDelay;
-    playerMorphs[guid] = new PlayerMorph(costume, startDelay * IN_MILLISECONDS, duration * IN_MILLISECONDS, !delay);
+    int32 startDelay = delay ? 2 : 0;
+    int32 duration = costume->duration < 0 ? defaultDuration : costume->duration;
+    int64 cooldown = (costume->cooldown < 0 ? defaultCooldown : costume->cooldown) + startDelay;
+    PlayerState *state = GetPlayerState(player);
+    state->DeleteMorph();
+    state->morph = new PlayerMorph(costume, startDelay * IN_MILLISECONDS, duration * IN_MILLISECONDS, !delay);
+    state->cooldowns[costume->itemEntry] = GameTime::GetGameTimeMS().count() + static_cast<long long>(cooldown * IN_MILLISECONDS);
 
     return true;
 }
@@ -152,12 +204,12 @@ void Costumes::ApplyCostume(Player* player, Costume* costume)
 
 void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
 {
-    if (!enabled || !player || canUseInCombat || playerMorphs.count(player->GetGUID()) == 0)
+    if (!enabled || !player || canUseInCombat || !IsPlayerMorphed(player))
     {
         return;
     }
 
-    playerMorphs[player->GetGUID()]->durationLeft = 0;
+    playerStates[player->GetGUID()]->morph->durationLeft = 0;
 }
 
 void Costumes::OnUpdate(uint32 diff)
@@ -168,27 +220,40 @@ void Costumes::OnUpdate(uint32 diff)
     }
 
     int32 dt = static_cast<int32>(diff);
-    for (auto it = playerMorphs.begin(); it != playerMorphs.end(); ++it)
-    {
-        ObjectGuid playerGuid = it->first;
-        PlayerMorph *morph = it->second;
+    int64 now = GameTime::GetGameTimeMS().count();
 
-        if (!morph->morphed)
+    for (auto it = playerStates.begin(); it != playerStates.end(); ++it)
+    {
+        ObjectGuid guid = it->first;
+        PlayerState *state = it->second;
+
+        if (PlayerMorph* morph = state->morph)
         {
-            morph->startDelay -= dt;
-            if (morph->startDelay <= 0)
+            if (!morph->morphed)
             {
-                Player* player = ObjectAccessor::FindPlayer(playerGuid);
-                ApplyCostume(player, morph->costume);
-                morph->morphed = true;
+                morph->startDelay -= dt;
+                if (morph->startDelay <= 0)
+                {
+                    Player* player = ObjectAccessor::FindPlayer(guid);
+                    ApplyCostume(player, morph->costume);
+                    morph->morphed = true;
+                }
+            }
+            else
+            {
+                morph->durationLeft -= dt;
+                if (morph->durationLeft <= 0)
+                {
+                    Player* player = ObjectAccessor::FindPlayer(guid);
+                    DemorphPlayer(player);
+                }
             }
         }
 
-        morph->durationLeft -= dt;
-        if (morph->durationLeft <= 0)
+        if (state->UpdateCooldowns(now) && state->IsEmpty())
         {
-            Player *player = ObjectAccessor::FindPlayer(playerGuid);
-            DemorphPlayer(player);
+            delete playerStates[guid];
+            playerStates.erase(guid);
         }
     }
 }
@@ -220,16 +285,59 @@ void Costumes::DemorphPlayer(Player *player)
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
 
     ObjectGuid guid = player->GetGUID();
-    PlayerMorph* morph = playerMorphs[guid];
-    playerMorphs.erase(guid);
-    delete morph;
+    if (playerStates.find(guid) != playerStates.end())
+    {
+        playerStates[guid]->DeleteMorph();
+
+        if (playerStates[guid]->IsEmpty())
+        {
+            delete playerStates[guid];
+            playerStates.erase(guid);
+        }
+    }
+}
+
+bool Costumes::IsPlayerMorphed(Player *player)
+{
+    ObjectGuid guid = player->GetGUID();
+    return playerStates.find(guid) != playerStates.end() && playerStates[guid]->morph != nullptr;
+}
+
+bool Costumes::IsCostumeOnCooldown(Player *player, Costume *costume)
+{
+    ObjectGuid guid = player->GetGUID();
+    if (playerStates.find(guid) == playerStates.end())
+    {
+        return false;
+    }
+
+    PlayerState *state = playerStates[guid];
+    if (state->cooldowns.find(costume->itemEntry) == state->cooldowns.end())
+    {
+        return false;
+    }
+
+    int64 now = GameTime::GetGameTimeMS().count();
+    return state->cooldowns[costume->itemEntry] > now;
+}
+
+PlayerState *Costumes::GetPlayerState(Player *player)
+{
+    ObjectGuid guid = player->GetGUID();
+    if (playerStates.find(guid) == playerStates.end())
+    {
+        playerStates[guid] = new PlayerState();
+    }
+
+    return playerStates[guid];
 }
 
 void Costumes::LoadConfig()
 {
     enabled = sConfigMgr->GetOption("Costumes.Enabled", true);
     costumeSpellId = sConfigMgr->GetOption<uint32>("Costumes.SpellId", 18282);
-    defaultDuration = sConfigMgr->GetOption<uint32>("Costumes.Duration", 60);
+    defaultDuration = sConfigMgr->GetOption<int32>("Costumes.Duration", 60);
+    defaultCooldown = sConfigMgr->GetOption<int64>("Costumes.Cooldown", 240);
     canUseInCombat = sConfigMgr->GetOption("Costumes.CanUseInCombat", false);
 
     LoadCostumes();
@@ -244,7 +352,7 @@ void Costumes::LoadCostumes()
 
     UnloadCostumes();
 
-    QueryResult result = WorldDatabase.Query("SELECT item_entry, display_id, sound_id, scale, duration FROM costume");
+    QueryResult result = WorldDatabase.Query("SELECT item_entry, display_id, sound_id, scale, duration, cooldown FROM costume");
     if (!result)
     {
         return;
@@ -259,8 +367,9 @@ void Costumes::LoadCostumes()
         uint32 soundId = fields[col++].Get<uint32>();
         float scale = fields[col++].Get<float>();
         int32 duration = fields[col++].Get<int32>();
+        int64 cooldown = fields[col++].Get<int64>();
 
-        Costume *costume = new Costume(itemEntry, displayId, soundId, scale, duration);
+        Costume *costume = new Costume(itemEntry, displayId, soundId, scale, duration, cooldown);
         costumes.insert(std::make_pair(itemEntry, costume));
     } while (result->NextRow());
 

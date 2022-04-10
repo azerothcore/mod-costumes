@@ -37,5 +37,5 @@ npm start
 * **flagsExtra**: The item's extra flags. See the [AzerothCore Wiki](https://www.azerothcore.org/wiki/item_template#flagsextra) for possible values.
 * **material**: The item's material, changes the sound made when the item is moved around in the inventory. See the [AzerothCore Wiki](https://www.azerothcore.org/wiki/item_template#material) for possible values.
 * **spell**: The spell triggered when right-clicking the item. This must match the `SpellId` value in the module config file.
-* **cooldown**: The costume's cooldown in seconds.
+* **cooldown**: The costume's cooldown in seconds. This overrides the default cooldown set in `costumes.conf`. If you want to use the module config's default cooldown for this costume, set the column to `-1`.
 * **sound**: The ID of the sound played when using the costume. Set to `0` if you don't want a sound. You can find a list of sounds [here for example](https://wotlkdb.com/?sounds) (the ID will be displayed in the address bar when clicking on a sound).

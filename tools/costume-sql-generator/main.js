@@ -45,8 +45,8 @@ const main = () => {
 	const itemInserts = [];
 	const morphInserts = [];
 	for (const row of rows) {
-		itemInserts.push(`(${row.itemId}, 0, 0, -1, '${sqlString(row.name)}', ${row.icon}, ${row.quality}, ${row.flags}, ${row.flagsExtra}, 1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000, 0, 0, ${row.spell}, 0, 0, 0, ${row.cooldown * 1000}, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 1, '${sqlString(row.description)}', 0, 0, 0, 0, 0, ${row.material}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0)`);
-		morphInserts.push(`(${row.itemId}, ${row.model}, ${row.sound}, ${row.scale}, ${row.duration})`);
+		itemInserts.push(`(${row.itemId}, 0, 0, -1, '${sqlString(row.name)}', ${row.icon}, ${row.quality}, ${row.flags}, ${row.flagsExtra}, 1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000, 0, 0, ${row.spell}, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 1, '${sqlString(row.description)}', 0, 0, 0, 0, 0, ${row.material}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 0)`);
+		morphInserts.push(`(${row.itemId}, ${row.model}, ${row.sound}, ${row.scale}, ${row.duration}, ${row.cooldown})`);
 	}
 
 	let sql = "";
@@ -56,7 +56,7 @@ const main = () => {
 	sql += "\n\n\n";
 
 	sql += `DELETE FROM \`costume\` WHERE \`item_entry\` IN (${itemIds.join(", ")});\n\n`;
-	sql += "INSERT INTO `costume` (`item_entry`, `display_id`, `sound_id`, `scale`, `duration`) VALUES\n";
+	sql += "INSERT INTO `costume` (`item_entry`, `display_id`, `sound_id`, `scale`, `duration`, `cooldown`) VALUES\n";
 	sql += morphInserts.join(",\n") + ";";
 	sql += "\n";
 

@@ -37,6 +37,7 @@ Alternatively, you can just start your worldserver if the updates system is enab
    - **`sound_id`**: The ID of the sound played when using the costume. Set to `0` if you don't want a sound. You can find a list of sounds [here for example](https://wotlkdb.com/?sounds) (the ID will be displayed in the address bar when clicking on a sound).
    - **`scale`**: The scale applied to the player when using the costume, `1.0` is the regular scale, anything between `0` and `1` will shrink the player, anything greater than `1` will grow the player.
    - **`duration`**: The costume's duration in seconds. This overrides the default duration set in `costumes.conf`. If you want to use the module config's default duration for this costume, set the column to `-1`.
+   - **`cooldown`**: The costume's cooldown in seconds. This overrides the default cooldown set in `costumes.conf`. If you want to use the module config's default cooldown for this costume, set the column to `-1`.
 3. Start or restart your worldserver.
 4. Delete the cache of your client
 5. Log in, `.additem` your custom item with the entry used in step 1.

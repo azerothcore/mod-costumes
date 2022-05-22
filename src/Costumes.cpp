@@ -132,7 +132,7 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
 
     if (!canUseInCombat && player->IsInCombat())
     {
-        result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
+        result = InventoryResult::EQUIP_ERR_NOT_IN_COMBAT;
         return false;
     }
 

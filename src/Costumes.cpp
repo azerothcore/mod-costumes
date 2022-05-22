@@ -106,7 +106,9 @@ Costumes::Costumes()
       costumeSpellId(0),
       defaultDuration(0),
       defaultCooldown(0),
-      canUseInCombat(false)
+      canUseInCombat(false),
+      canUseInBg(false),
+      canUseInArena(false)
 {
 }
 
@@ -117,9 +119,21 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         return true;
     }
 
-    if (!canUseInCombat && player->IsInCombat())
+    if (!canUseInBg && player->InBattleground())
     {
         result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
+        return false;
+    }
+
+    if (!canUseInArena && player->InArena())
+    {
+        result = InventoryResult::EQUIP_ERR_NOT_DURING_ARENA_MATCH;
+        return false;
+    }
+
+    if (!canUseInCombat && player->IsInCombat())
+    {
+        result = InventoryResult::EQUIP_ERR_NOT_IN_COMBAT;
         return false;
     }
 
@@ -339,6 +353,8 @@ void Costumes::LoadConfig()
     defaultDuration = sConfigMgr->GetOption<int32>("Costumes.Duration", 60);
     defaultCooldown = sConfigMgr->GetOption<int64>("Costumes.Cooldown", 240);
     canUseInCombat = sConfigMgr->GetOption("Costumes.CanUseInCombat", false);
+    canUseInBg = sConfigMgr->GetOption("Costumes.CanUseInBg", false);
+    canUseInArena = sConfigMgr->GetOption("Costumes.CanUseInArena", false);
 
     LoadCostumes();
 }

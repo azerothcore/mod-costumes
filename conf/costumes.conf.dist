@@ -26,9 +26,20 @@
 #    Costumes.CanUseInCombat
 #        Description: Allows players to use costumes while in combat.
 #        Default:     0
+#
+#    Costumes.CanUseInBG
+#        Description: Allows players to use costumes while in battleground.
+#        Default:     0
+#
+#    Costumes.CanUseInArena
+#        Description: Allows players to use costumes while in arena.
+#        Default:     0
 
 Costumes.Enabled = 1
 Costumes.SpellId = 18282
 Costumes.Duration = 60
 Costumes.Cooldown = 240
 Costumes.CanUseInCombat = 0
+Costumes.CanUseInBg = 0
+Costumes.CanUseInArena = 0
+

@@ -250,6 +250,7 @@ void Costumes::OnMapChanged(Player* player)
 }
 
 void Costumes::OnUpdate(Player* /* player */, uint32 /* p_time */) {}
+
 void Costumes::OnUpdate(uint32 diff)
 {
     if (!enabled)

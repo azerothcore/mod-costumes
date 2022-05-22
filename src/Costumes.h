@@ -39,6 +39,7 @@ public:
 
     // PlayerScript
     void OnUpdate(Player *player, uint32 p_time) override;
+    // WorldScript
     void OnUpdate(uint32 diff) override;
     void OnStartup() override;
     void OnShutdown() override;

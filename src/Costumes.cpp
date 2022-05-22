@@ -161,15 +161,15 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         char formattedTime[9]{};
         if (hours)
         {
-            sprintf(formattedTime, "%02ld:%02ld:%02ld", hours, minutes, seconds);
+            sprintf(formattedTime, "%lld:%lld:%lld", hours, minutes, seconds);
         }
         else if (minutes)
         {
-            sprintf(formattedTime, "%02ld:%02ld", minutes, seconds);
+            sprintf(formattedTime, "%lld:%lld", minutes, seconds);
         }
         else
         {
-            sprintf(formattedTime, "%02lds", seconds);
+            sprintf(formattedTime, "%llds", seconds);
         }
         player->GetSession()->SendNotification("Cooldown: %s", formattedTime);
 

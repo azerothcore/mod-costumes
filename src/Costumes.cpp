@@ -39,6 +39,22 @@ struct Costume
     }
 };
 
+struct PlayerMorph
+{
+    Costume* costume;
+    int32 startDelay;
+    int32 durationLeft;
+    bool morphed;
+
+    PlayerMorph(Costume* costume, int32 startDelay, int32 durationLeft, bool morphed)
+        : costume(costume),
+        startDelay(startDelay),
+        durationLeft(durationLeft),
+        morphed(morphed)
+    {
+    }
+};
+
 struct PlayerState
 {
     PlayerMorph* morph;
@@ -54,7 +70,7 @@ struct PlayerState
     {
         if (morph)
         {
-            // delete morph;
+            delete morph;
             morph = nullptr;
             return true;
         }
@@ -80,22 +96,6 @@ struct PlayerState
         }
 
         return cdRemoved;
-    }
-};
-
-struct PlayerMorph
-{
-    Costume* costume;
-    int32 startDelay;
-    int32 durationLeft;
-    bool morphed;
-
-    PlayerMorph(Costume* costume, int32 startDelay, int32 durationLeft, bool morphed)
-        : costume(costume),
-          startDelay(startDelay),
-          durationLeft(durationLeft),
-          morphed(morphed)
-    {
     }
 };
 

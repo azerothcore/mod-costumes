@@ -37,7 +37,7 @@ public:
     void OnPlayerEnterCombat(Player *player, Unit *enemy) override;
     void OnMapChanged(Player *player) override;
 
-    // WorldScript
+    // PlayerScript
     void OnUpdate(Player *player, uint32 p_time) override;
     void OnUpdate(uint32 diff) override;
     void OnStartup() override;

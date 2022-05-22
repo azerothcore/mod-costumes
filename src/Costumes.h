@@ -35,6 +35,7 @@ public:
     // PlayerScript
     bool CanUseItem(Player *player, ItemTemplate const *item, InventoryResult &result) override;
     void OnPlayerEnterCombat(Player *player, Unit *enemy) override;
+    void OnMapChanged(Player *player) override;
 
     // WorldScript
     void OnUpdate(uint32 diff) override;

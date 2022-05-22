@@ -121,6 +121,7 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
 
     if (!canUseInBg && player->InBattleground())
     {
+        result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
         return false;
     }
 

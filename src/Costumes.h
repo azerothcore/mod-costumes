@@ -38,6 +38,7 @@ public:
 
     // WorldScript
     void OnUpdate(uint32 diff) override;
+    void OnUpdate(Player *player, uint32 p_time) override;
     void OnStartup() override;
     void OnShutdown() override;
     void OnAfterConfigLoad(bool reload) override;

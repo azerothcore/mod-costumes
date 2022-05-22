@@ -54,7 +54,7 @@ struct PlayerState
     {
         if (morph)
         {
-            delete morph;
+            // delete morph;
             morph = nullptr;
             return true;
         }
@@ -226,6 +226,7 @@ void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
     playerStates[player->GetGUID()]->morph->durationLeft = 0;
 }
 
+void Costumes::OnUpdate(Player* /* player */, uint32 /* p_time */) {}
 void Costumes::OnUpdate(uint32 diff)
 {
     if (!enabled)

@@ -226,6 +226,29 @@ void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
     playerStates[player->GetGUID()]->morph->durationLeft = 0;
 }
 
+void Costumes::OnMapChanged(Player* player)
+{
+    if (!player || !IsPlayerMorphed(player))
+    {
+        return;
+    }
+
+    PlayerState* state = GetPlayerState(player);
+
+    if ((!canUseInBg && player->InBattleground()) || (!canUseInArena && player->InArena()))
+    {
+        state->morph->durationLeft = 0;
+        return;
+    }
+
+    // Reapply the costume on map change since you get demorphed
+    if (state && state->morph && state->morph->costume && state->morph->durationLeft > 2.0f * IN_MILLISECONDS)
+    {
+        state->morph->morphed = false;
+        state->morph->startDelay = 1.0f * IN_MILLISECONDS; // Remorph in 1sec
+    }
+}
+
 void Costumes::OnUpdate(uint32 diff)
 {
     if (!enabled)

@@ -57,6 +57,8 @@ private:
     int32 defaultDuration;
     int64 defaultCooldown;
     bool canUseInCombat;
+    bool canUseInBg;
+    bool canUseInArena;
     const uint32 visualSpell = 24222;                 // Vanish visual effect
     std::map<ObjectGuid, PlayerState *> playerStates; // Map of players' states (current morph and cooldowns) (key = player GUID)
     std::map<uint32, Costume *> costumes;             // Map of all rows from the `costume` table (key = item entry)

@@ -127,6 +127,7 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
 
     if (!canUseInArena && player->InArena())
     {
+        result = InventoryResult::EQUIP_ERR_NOT_DURING_ARENA_MATCH;
         return false;
     }
 

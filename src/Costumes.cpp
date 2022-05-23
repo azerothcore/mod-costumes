@@ -39,6 +39,22 @@ struct Costume
     }
 };
 
+struct PlayerMorph
+{
+    Costume* costume;
+    int32 startDelay;
+    int32 durationLeft;
+    bool morphed;
+
+    PlayerMorph(Costume* costume, int32 startDelay, int32 durationLeft, bool morphed)
+        : costume(costume),
+        startDelay(startDelay),
+        durationLeft(durationLeft),
+        morphed(morphed)
+    {
+    }
+};
+
 struct PlayerState
 {
     PlayerMorph* morph;
@@ -80,22 +96,6 @@ struct PlayerState
         }
 
         return cdRemoved;
-    }
-};
-
-struct PlayerMorph
-{
-    Costume* costume;
-    int32 startDelay;
-    int32 durationLeft;
-    bool morphed;
-
-    PlayerMorph(Costume* costume, int32 startDelay, int32 durationLeft, bool morphed)
-        : costume(costume),
-          startDelay(startDelay),
-          durationLeft(durationLeft),
-          morphed(morphed)
-    {
     }
 };
 
@@ -161,15 +161,15 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         char formattedTime[9]{};
         if (hours)
         {
-            sprintf(formattedTime, "%02lld:%02lld:%02lld", hours, minutes, seconds);
+            sprintf(formattedTime, "%02ld:%02ld:%02ld", hours, minutes, seconds);
         }
         else if (minutes)
         {
-            sprintf(formattedTime, "%02lld:%02lld", minutes, seconds);
+            sprintf(formattedTime, "%02ld:%02ld", minutes, seconds);
         }
         else
         {
-            sprintf(formattedTime, "%02llds", seconds);
+            sprintf(formattedTime, "%02lds", seconds);
         }
         player->GetSession()->SendNotification("Cooldown: %s", formattedTime);
 
@@ -248,6 +248,8 @@ void Costumes::OnMapChanged(Player* player)
         state->morph->startDelay = 1.0f * IN_MILLISECONDS; // Remorph in 1sec
     }
 }
+
+void Costumes::OnUpdate(Player* /* player */, uint32 /* p_time */) {}
 
 void Costumes::OnUpdate(uint32 diff)
 {

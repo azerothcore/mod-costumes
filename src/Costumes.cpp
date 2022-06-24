@@ -107,6 +107,7 @@ Costumes::Costumes()
       defaultDuration(0),
       defaultCooldown(0),
       canUseInCombat(false),
+      canUseInPvp(false),
       canUseInBg(false),
       canUseInArena(false)
 {
@@ -132,6 +133,12 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
     }
 
     if (!canUseInCombat && player->IsInCombat())
+    {
+        result = InventoryResult::EQUIP_ERR_NOT_IN_COMBAT;
+        return false;
+    }
+
+    if (!canUseInPvp && player->IsInCombat() && player->IsPvP())
     {
         result = InventoryResult::EQUIP_ERR_NOT_IN_COMBAT;
         return false;
@@ -216,9 +223,9 @@ void Costumes::ApplyCostume(Player* player, Costume* costume)
     }
 }
 
-void Costumes::OnPlayerEnterCombat(Player *player, Unit * /* enemy */)
+void Costumes::OnPlayerEnterCombat(Player *player, Unit* enemy)
 {
-    if (!enabled || !player || canUseInCombat || !IsPlayerMorphed(player))
+    if (!enabled || !player || !IsPlayerMorphed(player) || (canUseInCombat && (!enemy->IsPlayer() || canUseInPvp)))
     {
         return;
     }
@@ -378,6 +385,7 @@ void Costumes::LoadConfig()
     defaultDuration = sConfigMgr->GetOption<int32>("Costumes.Duration", 60);
     defaultCooldown = sConfigMgr->GetOption<int64>("Costumes.Cooldown", 240);
     canUseInCombat = sConfigMgr->GetOption("Costumes.CanUseInCombat", false);
+    canUseInPvp = sConfigMgr->GetOption("Costumes.CanUseInPvP", false);
     canUseInBg = sConfigMgr->GetOption("Costumes.CanUseInBg", false);
     canUseInArena = sConfigMgr->GetOption("Costumes.CanUseInArena", false);
 

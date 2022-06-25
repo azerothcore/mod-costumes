@@ -59,6 +59,7 @@ private:
     int32 defaultDuration;
     int64 defaultCooldown;
     bool canUseInCombat;
+    bool canUseInPvp;
     bool canUseInBg;
     bool canUseInArena;
     const uint32 visualSpell = 24222;                 // Vanish visual effect

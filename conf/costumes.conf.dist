@@ -27,6 +27,10 @@
 #        Description: Allows players to use costumes while in combat.
 #        Default:     0
 #
+#    Costumes.CanUseInPvP
+#        Description: If CanUseInCombat is set to 1, this controls whether players can use costumes while in PvP combat.
+#        Default:     0
+#
 #    Costumes.CanUseInBG
 #        Description: Allows players to use costumes while in battleground.
 #        Default:     0
@@ -40,6 +44,7 @@ Costumes.SpellId = 18282
 Costumes.Duration = 60
 Costumes.Cooldown = 240
 Costumes.CanUseInCombat = 0
+Costumes.CanUseInPvP = 0
 Costumes.CanUseInBg = 0
 Costumes.CanUseInArena = 0
 

@@ -86,12 +86,16 @@ struct PlayerState
     {
         bool cdRemoved = false;
 
-        for (auto it = cooldowns.begin(); it != cooldowns.end(); ++it)
+        for (auto it = cooldowns.cbegin(); it != cooldowns.cend();)
         {
             if (it->second <= now)
             {
-                cooldowns.erase(it);
+                it = cooldowns.erase(it);
                 cdRemoved = true;
+            }
+            else
+            {
+                ++it;
             }
         }
 
@@ -261,7 +265,7 @@ void Costumes::OnUpdate(uint32 diff)
     int32 dt = static_cast<int32>(diff);
     int64 now = GameTime::GetGameTimeMS().count();
 
-    for (auto it = playerStates.begin(); it != playerStates.end(); ++it)
+    for (auto it = playerStates.cbegin(); it != playerStates.cend();)
     {
         ObjectGuid guid = it->first;
         PlayerState *state = it->second;
@@ -292,7 +296,11 @@ void Costumes::OnUpdate(uint32 diff)
         if (state->UpdateCooldowns(now) && state->IsEmpty())
         {
             delete playerStates[guid];
-            playerStates.erase(guid);
+            it = playerStates.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -327,12 +335,6 @@ void Costumes::DemorphPlayer(Player *player)
     if (playerStates.find(guid) != playerStates.end())
     {
         playerStates[guid]->DeleteMorph();
-
-        if (playerStates[guid]->IsEmpty())
-        {
-            delete playerStates[guid];
-            playerStates.erase(guid);
-        }
     }
 }
 

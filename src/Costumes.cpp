@@ -229,7 +229,7 @@ void Costumes::ApplyCostume(Player* player, Costume* costume)
 
 void Costumes::OnPlayerEnterCombat(Player *player, Unit* enemy)
 {
-    if (!enabled || !player || !IsPlayerMorphed(player) || (canUseInCombat && (!enemy->IsPlayer() || canUseInPvp)))
+    if (!enabled || !player || !IsPlayerMorphed(player) || (canUseInCombat && (!enemy->IsPlayer() || canUseInPvp || enemy->IsInPartyWith(player) || enemy->IsInRaidWith(player))))
     {
         return;
     }

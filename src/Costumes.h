@@ -27,7 +27,7 @@ struct Costume;
 struct PlayerState;
 struct PlayerMorph;
 
-class Costumes : public PlayerScript, WorldScript
+class Costumes : public PlayerScript, WorldScript, UnitScript
 {
 public:
     Costumes();
@@ -43,6 +43,9 @@ public:
     void OnStartup() override;
     void OnShutdown() override;
     void OnAfterConfigLoad(bool reload) override;
+
+    // UnitScript
+    void OnDisplayIdChange(Unit *unit, uint32 displayId) override;
 
 private:
     void ApplyCostume(Player *player, Costume *costume);

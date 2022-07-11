@@ -59,10 +59,12 @@ struct PlayerState
 {
     PlayerMorph* morph;
     std::map<uint32, int64> cooldowns;
+    bool paused;
 
     PlayerState()
         : morph(nullptr),
-          cooldowns()
+          cooldowns(),
+          paused(false)
     {
     }
 
@@ -106,6 +108,7 @@ struct PlayerState
 Costumes::Costumes()
     : PlayerScript("CostumesPlayerScript"),
       WorldScript("CostumesWorldScript"),
+      UnitScript("CostumesUnitScript"),
       enabled(false),
       costumeSpellId(0),
       defaultDuration(0),
@@ -237,6 +240,34 @@ void Costumes::OnPlayerEnterCombat(Player *player, Unit* enemy)
     playerStates[player->GetGUID()]->morph->durationLeft = 0;
 }
 
+void Costumes::OnDisplayIdChange(Unit *unit, uint32 displayId)
+{
+    if (!enabled || !unit || !unit->IsPlayer())
+    {
+        return;
+    }
+
+    Player* player = unit->ToPlayer();
+    if (!IsPlayerMorphed(player))
+    {
+        return;
+    }
+
+    PlayerState* state = playerStates[player->GetGUID()];
+    if (displayId == player->GetNativeDisplayId())
+    {
+        state->paused = false;
+        state->morph->morphed = false;
+        player->SetObjectScale(state->morph->costume->scale);
+        state->morph->startDelay = 2.0f * IN_MILLISECONDS; // Remorph in 2secs
+    }
+    else if (displayId != state->morph->costume->displayId)
+    {
+        state->paused = true;
+        player->SetObjectScale(1.0);
+    }
+}
+
 void Costumes::OnMapChanged(Player* player)
 {
     if (!player || !IsPlayerMorphed(player))
@@ -256,7 +287,8 @@ void Costumes::OnMapChanged(Player* player)
     if (state && state->morph && state->morph->costume && state->morph->durationLeft > 2.0f * IN_MILLISECONDS)
     {
         state->morph->morphed = false;
-        state->morph->startDelay = 1.0f * IN_MILLISECONDS; // Remorph in 1sec
+        player->SetObjectScale(state->morph->costume->scale);
+        state->morph->startDelay = 2.0f * IN_MILLISECONDS; // Remorph in 2secs
     }
 }
 
@@ -276,8 +308,9 @@ void Costumes::OnUpdate(uint32 diff)
     {
         ObjectGuid guid = it->first;
         PlayerState *state = it->second;
+        PlayerMorph *morph = state->morph;
 
-        if (PlayerMorph* morph = state->morph)
+        if (morph && !state->paused)
         {
             if (!morph->morphed)
             {

@@ -221,6 +221,9 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
 
 void Costumes::ApplyCostume(Player* player, Costume* costume)
 {
+    if (!player)
+        return;
+    
     player->SetDisplayId(costume->displayId);
     player->SetObjectScale(costume->scale);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);

@@ -53,6 +53,7 @@ private:
     bool IsPlayerMorphed(Player *player);
     bool IsCostumeOnCooldown(Player *player, Costume *costume);
     PlayerState *GetPlayerState(Player *player);
+    void ResetScale(Player *player);
     void LoadConfig();
     void LoadCostumes();
     void UnloadCostumes();

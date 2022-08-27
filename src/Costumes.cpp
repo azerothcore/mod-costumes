@@ -17,6 +17,7 @@
 
 #include "Costumes.h"
 #include "Config.h"
+#include "SpellAuraEffects.h"
 #include "Time/GameTime.h"
 
 struct Costume
@@ -267,7 +268,7 @@ void Costumes::OnDisplayIdChange(Unit *unit, uint32 displayId)
     else if (displayId != state->morph->costume->displayId)
     {
         state->paused = true;
-        player->SetObjectScale(1.0);
+        ResetScale(player);
     }
 }
 
@@ -371,7 +372,7 @@ void Costumes::DemorphPlayer(Player *player)
     }
 
     player->DeMorph();
-    player->SetObjectScale(1.0f);
+    ResetScale(player);
     player->CastSpell(player, visualSpell, TRIGGERED_FULL_MASK);
 
     ObjectGuid guid = player->GetGUID();
@@ -414,6 +415,22 @@ PlayerState *Costumes::GetPlayerState(Player *player)
     }
 
     return playerStates[guid];
+}
+
+/// Use this to reset the player's scale when morphing out of a costume instead of setting the player's scale to 1.0
+/// Fixes https://github.com/azerothcore/mod-costumes/issues/12
+void Costumes::ResetScale(Player* player)
+{
+    float scale = 1.0f;
+    for (const AuraEffect* aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE))
+    {
+        scale *= static_cast<float>(aura->GetAmount()) / 100.0f;
+    }
+    for (const AuraEffect* aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE_2))
+    {
+        scale *= static_cast<float>(aura->GetAmount()) / 100.0f;
+    }
+    player->SetObjectScale(scale);
 }
 
 void Costumes::LoadConfig()

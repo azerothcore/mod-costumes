@@ -20,6 +20,8 @@
 #include "SpellAuraEffects.h"
 #include "Time/GameTime.h"
 
+#include <boost/range/join.hpp>
+
 struct Costume
 {
     uint32 itemEntry;
@@ -422,13 +424,17 @@ PlayerState *Costumes::GetPlayerState(Player *player)
 void Costumes::ResetScale(Player* player)
 {
     float scale = 1.0f;
-    for (const AuraEffect* aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE))
+    for (const AuraEffect* aura : boost::join(player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE), player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE_2)))
     {
-        scale *= static_cast<float>(aura->GetAmount()) / 100.0f;
-    }
-    for (const AuraEffect* aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_SCALE_2))
-    {
-        scale *= static_cast<float>(aura->GetAmount()) / 100.0f;
+        float amount = static_cast<float>(std::abs(aura->GetAmount())) / 100.0f;
+        if (aura->GetAmount() < 0)
+        {
+            scale *= amount;
+        }
+        else
+        {
+            scale *= 1.0f + amount;
+        }
     }
     player->SetObjectScale(scale);
 }

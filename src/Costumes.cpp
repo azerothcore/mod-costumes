@@ -175,20 +175,20 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         int64 hours = cd / 3600;
         int64 minutes = (cd % 3600) / 60;
         int64 seconds = cd % 60;
-        char formattedTime[9]{};
+        std::string formattedTime;
         if (hours)
         {
-            sprintf(formattedTime, "%02ld:%02ld:%02ld", hours, minutes, seconds);
+            formattedTime = fmt::format("{:02}:{:02}:{:02}", hours, minutes, seconds);
         }
         else if (minutes)
         {
-            sprintf(formattedTime, "%02ld:%02ld", minutes, seconds);
+            formattedTime = fmt::format("{:02}:{:02}", minutes, seconds);
         }
         else
         {
-            sprintf(formattedTime, "%02lds", seconds);
+            formattedTime = fmt::format("{:02}s", seconds);
         }
-        player->GetSession()->SendNotification("Cooldown: %s", formattedTime);
+        player->GetSession()->SendNotification("Cooldown: %s", formattedTime.c_str());
 
         result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
         return false;

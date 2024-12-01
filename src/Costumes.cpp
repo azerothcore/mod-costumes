@@ -189,7 +189,7 @@ bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryRes
         {
             formattedTime = fmt::format("{:02}s", seconds);
         }
-        ChatHandler(player->GetSession()).SendNotification("Cooldown: %s", formattedTime.c_str());
+        ChatHandler(player->GetSession()).SendNotification("Cooldown: {}", formattedTime);
 
         result = InventoryResult::EQUIP_ERR_CANT_DO_RIGHT_NOW;
         return false;

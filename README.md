@@ -28,6 +28,9 @@ If you need to change the module configuration, go to your server configuration 
 Run the SQL files in the `data/sql` directory.  
 Alternatively, you can just start your worldserver if the updates system is enabled, it will apply the SQL queries automatically.
 
+> [!NOTE]  
+> There is an example SQL file which you can look and/or run the query in your `acore_world` database. This has out of the box 75 costumes (majority from vanilla dungeons). Check [tools/example.sql](tools/).
+
 ## How to use
 
 1. Create a custom item by inserting a row in the `item_template` table of the world database. Using [Keira3](https://github.com/azerothcore/Keira3) makes this way easier.
@@ -42,7 +45,8 @@ Alternatively, you can just start your worldserver if the updates system is enab
 4. Delete the cache of your client
 5. Log in, `.additem` your custom item with the entry used in step 1.
 
-_Note: this process can be simplified by generating SQL queries using [tools/costume-sql-generator](tools/costume-sql-generator)._
+> [!NOTE]  
+> This process can be simplified by generating SQL queries using [tools/costume-sql-generator](tools/costume-sql-generator). 
 
 ## License
 

@@ -29,7 +29,7 @@ Run the SQL files in the `data/sql` directory.
 Alternatively, you can just start your worldserver if the updates system is enabled, it will apply the SQL queries automatically.
 
 > [!NOTE]  
-> There is an example SQL file which you can look and/or run the query in your `acore_world` database. This has out of the box 75 costumes (majority from vanilla dungeons). Check [tools/example.sql](tools/).
+> There is an example SQL file which you can look and/or run the query in your `acore_world` database. This has out of the box 75 costumes (majority from vanilla dungeons). Check [tools/example.sql](tools/) There's also in the same place a example (filled) `.CSV` file. 
 
 ## How to use
 

@@ -124,7 +124,7 @@ Costumes::Costumes()
 {
 }
 
-bool Costumes::CanUseItem(Player *player, ItemTemplate const *item, InventoryResult &result)
+bool Costumes::OnPlayerCanUseItem(Player *player, ItemTemplate const *item, InventoryResult &result)
 {
     if (!enabled || !player || !item || (uint32)item->Spells[0].SpellId != (uint32)costumeSpellId)
     {
@@ -275,7 +275,7 @@ void Costumes::OnDisplayIdChange(Unit *unit, uint32 displayId)
     }
 }
 
-void Costumes::OnMapChanged(Player* player)
+void Costumes::OnPlayerMapChanged(Player* player)
 {
     if (!player || !IsPlayerMorphed(player))
     {
@@ -299,7 +299,7 @@ void Costumes::OnMapChanged(Player* player)
     }
 }
 
-void Costumes::OnUpdate(Player* /* player */, uint32 /* p_time */) {}
+void Costumes::OnPlayerUpdate(Player* /* player */, uint32 /* p_time */) {}
 
 void Costumes::OnUpdate(uint32 diff)
 {

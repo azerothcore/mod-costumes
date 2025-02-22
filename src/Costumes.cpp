@@ -110,9 +110,21 @@ struct PlayerState
 };
 
 Costumes::Costumes()
-    : PlayerScript("CostumesPlayerScript"),
-      WorldScript("CostumesWorldScript"),
-      UnitScript("CostumesUnitScript"),
+    : PlayerScript("CostumesPlayerScript", {
+        PLAYERHOOK_CAN_USE_ITEM,
+        PLAYERHOOK_ON_PLAYER_ENTER_COMBAT,
+        PLAYERHOOK_ON_MAP_CHANGED,
+        PLAYERHOOK_ON_UPDATE
+    }),
+      WorldScript("CostumesWorldScript", {
+        WORLDHOOK_ON_UPDATE,
+        WORLDHOOK_ON_STARTUP,
+        WORLDHOOK_ON_SHUTDOWN,
+        WORLDHOOK_ON_AFTER_CONFIG_LOAD
+      }),
+      UnitScript("CostumesUnitScript", 
+        UNITHOOK_ON_DISPLAYID_CHANGE
+      ),
       enabled(false),
       costumeSpellId(0),
       defaultDuration(0),

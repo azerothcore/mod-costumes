@@ -122,9 +122,9 @@ Costumes::Costumes()
         WORLDHOOK_ON_SHUTDOWN,
         WORLDHOOK_ON_AFTER_CONFIG_LOAD
       }),
-      UnitScript("CostumesUnitScript", 
+      UnitScript("CostumesUnitScript", true, {
         UNITHOOK_ON_DISPLAYID_CHANGE
-      ),
+      }),
       enabled(false),
       costumeSpellId(0),
       defaultDuration(0),
